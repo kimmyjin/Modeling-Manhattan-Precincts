@@ -75,10 +75,11 @@ for ( k in seq_along(num.rep)){
 }
 for ( j in seq_len(dim(dir.name)[1])){
   nyc_man$address = str_replace(nyc_man$address, paste0(" ",dir.name[j,1], " "),paste0(" ",dir.name[j,2], " "))
+  nyc_man$address = str_replace(nyc_man$address, paste0("^",dir.name[j,1], " "),paste0(" ",dir.name[j,2], " "))
 }
 # make the address format to be consistant through the pluto_xy file
 pluto_xy$address = str_replace(pluto_xy$address, "bl$", "blvd")
-
+nyc_man$address = str_replace(nyc_man$address, "bway", "broadway")
 
 # Combine data
 combined = inner_join(nyc_man, pluto_xy)
