@@ -62,8 +62,9 @@ alt.data.dir = alt.data %>% select(PDir) %>% unique() %>% na.omit()
 alt.data.dir.rep = c("east", "west","south","north") 
 dir.name = data.frame(tolower(alt.data.dir[[1]]),alt.data.dir.rep,stringsAsFactors = FALSE) 
 
+
 #find the street numbers
-num.rep=c(1:100)
+num.rep=c(1:130)
 num.add <- function(i){
   last_digit <- as.numeric(substring(i, nchar(i)))
   ending <- sapply(last_digit + 1, switch, 'th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th')
@@ -86,9 +87,21 @@ for ( j in seq_len(dim(dir.name)[1])){
   nyc_man$address = str_replace(nyc_man$address, paste0(" ",dir.name[j,1], " "),paste0(" ",dir.name[j,2], " "))
   nyc_man$address = str_replace(nyc_man$address, paste0("^",dir.name[j,1], " "),paste0(dir.name[j,2], " "))
 }
+
 # make the address format to be consistant through the pluto_xy file
 pluto_xy$address = str_replace(pluto_xy$address, "bl$", "blvd")
 nyc_man$address = str_replace(nyc_man$address, "bway", "broadway")
+
+combined = inner_join(nyc_man, pluto_xy)
+
+Mode = function(x) {
+  unique.x = as.integer(unique(x))
+  tbl = tabulate(match(x, unique.x))
+  toString(unique.x[tbl==max(tbl)])
+}
+combined %<>% group_by(x,y) %>% mutate(precinct=as.integer(Mode(precinct))) %>% na.omit() %>% unique()
+save(combined, file="precinct.Rdata")
+
 
 
 # Combine data
@@ -96,7 +109,4 @@ nyc_man$address = str_replace(nyc_man$address, "bway", "broadway")
 #ggplot(combined, aes(x=x,y=y,color=factor(precinct))) +
 #  geom_point(size=0.1) +
 #  theme_bw()
-
-combined = inner_join(nyc_man, pluto_xy)
-save(combined, file="precinct.Rdata")
 
