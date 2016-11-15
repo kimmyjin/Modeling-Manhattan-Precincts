@@ -100,24 +100,6 @@ Mode = function(x) {
   toString(unique.x[tbl==max(tbl)])
 }
 combined %<>% group_by(x,y) %>% mutate(precinct=as.integer(Mode(precinct))) %>% na.omit() %>% unique()
-#
-#a=seq(40.796769,40.800543, length.out = 500)
-#dataset1=matrix(a,nrow=100,ncol=5)
-#b=seq(-73.972990,-73.958237, length.out = 1500)
-#dataset2=matrix(b,nrow=100,ncol=15)
-#
-#s=10000
-#res = list() 
-#for(i in 1:s)
-#{
-#  res[[i]] = data_frame(address = "Central Park", 
-#                        precinct = as.integer(22),
-#                        x = sample(dataset2, 1, replace=TRUE),
-#                        y = sample(dataset1, 1, replace=TRUE)
-#  
-#}
-#
-#res_data = as.data.frame(bind_rows(res))
 combined = rbind.data.frame(combined,df)
 combined %<>% ungroup()
 save(combined, file="precinct.Rdata")
