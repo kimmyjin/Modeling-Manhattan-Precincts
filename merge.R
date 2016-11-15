@@ -51,8 +51,8 @@ alt.data = read.csv(file="/data/nyc_parking/altnames.csv", na.strings=c("","NA")
 alt.data.stype = alt.data %>% 
   select(SType) %>% 
   table() %>%
-  sort(, decreasing = TRUE) %>% 
-  head(,n = 10) %>% 
+  sort(., decreasing = TRUE) %>% 
+  head(.,n = 10) %>% 
   names()
 alt.data.st.rep = c("avenue", "street", "place","way","blvd","road","bridge","drive","court", "parkway")
 match.name = data.frame(tolower(alt.data.stype), alt.data.st.rep, stringsAsFactors = FALSE)
@@ -81,7 +81,9 @@ for ( j in seq_len(dim(dir.name)[1])){
 pluto_xy$address = str_replace(pluto_xy$address, "bl$", "blvd")
 nyc_man$address = str_replace(nyc_man$address, "bway", "broadway")
 
+
 # Combine data
+rep <- nyc_man %>% select(address) %>% table() %>% sort(., decreasing = TRUE) %>% head()
 combined = inner_join(nyc_man, pluto_xy)
 
 ggplot(combined, aes(x=x,y=y,color=factor(precinct))) + 
