@@ -125,7 +125,7 @@ save(combined, file="precinct.Rdata")
 
 
 # Combine data
-rep <- nyc_man %>% select(address) %>% table() %>% sort(., decreasing = TRUE) %>% head()
+#rep <- nyc_man %>% select(address) %>% table() %>% sort(., decreasing = TRUE) %>% head()
 #ggplot(combined, aes(x=x,y=y,color=factor(precinct))) +
 #  geom_point(size=0.1) +
 #  theme_bw()
