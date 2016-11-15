@@ -15,7 +15,7 @@ Csamp <- function(n,rad=1,centre=c(0,0)){
 samp1<-Csamp(1000,0.0065,c(-73.974309,40.770629))
 samp2<-Csamp(1000,0.0063,c(-73.968815,40.778104))
 samp3<-Csamp(1000,0.0063,c(-73.962721,40.785075))
-samp4<-Csamp(1500,0.0065,c(-73.959117,40.790858))
+samp4<-Csamp(1500,0.0063,c(-73.959117,40.790858))
 samp5<-Csamp(1500,0.0065,c(-73.956284,40.795244))
 
 sample_together <-data.frame(rbind(samp1,samp2,samp3,samp4,samp5))
