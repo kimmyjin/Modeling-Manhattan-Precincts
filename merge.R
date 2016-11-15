@@ -23,9 +23,9 @@ pluto_xy = cbind(
   setNames(c("address","x","y")) %>%
   tbl_df()
 
-ggplot(pluto_xy, aes(x=x,y=y)) + 
-  geom_point(alpha=0.1,size=0.1) +
-  theme_bw()
+#ggplot(pluto_xy, aes(x=x,y=y)) + 
+#  geom_point(alpha=0.1,size=0.1) +
+#  theme_bw()
 
 
 ## Merge data
@@ -42,8 +42,8 @@ nyc_man = nyc %>%
 nyc_man %<>% mutate(address = tolower(address))
 pluto_xy %<>% mutate(address = tolower(address))
 
-xy = pluto_xy %>% 
-  filter(address != "")
+#xy = pluto_xy %>% 
+#  filter(address != "")
 
 # Replace strings
 # find the most occurance 10 street type
@@ -92,41 +92,11 @@ nyc_man$address = str_replace(nyc_man$address, "bway", "broadway")
 
 
 # Combine data
-rep <- nyc_man %>% select(address) %>% table() %>% sort(., decreasing = TRUE) %>% head()
-combined = inner_join(nyc_man, pluto_xy)
-
-ggplot(combined, aes(x=x,y=y,color=factor(precinct))) +
-  geom_point(size=0.1) +
-  theme_bw()
-
-save(combined, file="precinct.Rdata")
-
-#regst = "(\\sstreet)"
-#
-#xy$address=str_replace(xy$address, "street", "st")
-#nyc_man$address = str_replace(nyc_man$address, "street", "st")
-#xy$address=str_replace(xy$address, "avenue", "ave")
-#nyc_man$address = str_replace(nyc_man$address, "avenue", "ave")
-#xy$address=str_replace(xy$address, "street", "st")
-#nyc_man$address = str_replace(nyc_man$address, "street", "st")
-#xy$address=str_replace(xy$address, "boulevard", "blvd")
-#nyc_man$address = str_replace(nyc_man$address, "boulevard", "blvd")
-#xy$address=str_replace(xy$address, "drive", "dr")
-#nyc_man$address = str_replace(nyc_man$address, "drive", "dr")
-#
-#
-#nyc_man$address = str_replace(nyc_man$address, "first", "1")
-#nyc_man$address = str_replace(nyc_man$address, "second", "2")
-#nyc_man$address = str_replace(nyc_man$address, "third", "3")
-#nyc_man$address = str_replace(nyc_man$address, "fourth", "4")
-#nyc_man$address = str_replace(nyc_man$address, "fifth", "5")
-#
-##detect 
-##head(nyc_man$address[str_detect(nyc_man$address, "(\\d+\\w*(st|nd|rd|th))")])
-#
-#combined = inner_join(nyc_man, xy)
-##notcombined = anti_join(nyc_man, pluto_xy)
-#
-#ggplot(combined, aes(x=x,y=y,color=factor(precinct))) + 
+#rep <- nyc_man %>% select(address) %>% table() %>% sort(., decreasing = TRUE) %>% head()
+#ggplot(combined, aes(x=x,y=y,color=factor(precinct))) +
 #  geom_point(size=0.1) +
 #  theme_bw()
+
+combined = inner_join(nyc_man, pluto_xy)
+save(combined, file="precinct.Rdata")
+
