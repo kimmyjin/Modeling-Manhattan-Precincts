@@ -62,7 +62,7 @@ alt.data.dir.rep = c("east", "west","south","north")
 dir.name = data.frame(tolower(alt.data.dir[[1]]),alt.data.dir.rep,stringsAsFactors = FALSE) 
 
 
-find the street numbers
+#find the street numbers
 num.rep=c(1:10)
 num.add <- function(i){
   last_digit <- as.numeric(substring(i, nchar(i)))
