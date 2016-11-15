@@ -105,15 +105,15 @@ dataset1=matrix(a,nrow=100,ncol=5)
 b=seq(-73.972990,-73.958237, length.out = 1500)
 dataset2=matrix(b,nrow=100,ncol=15)
 
-s=4500
+s=5500
 
 res = list() 
 for(i in 1:s)
 {
   res[[i]] = data_frame(address = "Central Park", 
                         precinct = as.integer(22),
-                        x = sample(dataset1, 1, replace=TRUE),
-                        y = sample(dataset2, 1, replace=TRUE)
+                        x = sample(dataset2, 1, replace=TRUE),
+                        y = sample(dataset1, 1, replace=TRUE)
   )
 }
 
