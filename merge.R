@@ -114,7 +114,7 @@ combined %<>% group_by(x,y) %>% mutate(precinct=as.integer(Mode(precinct))) %>% 
 #                        precinct = as.integer(22),
 #                        x = sample(dataset2, 1, replace=TRUE),
 #                        y = sample(dataset1, 1, replace=TRUE)
-#  )
+#  
 #}
 #
 #res_data = as.data.frame(bind_rows(res))
@@ -125,7 +125,7 @@ save(combined, file="precinct.Rdata")
 
 
 # Combine data
-rep <- nyc_man %>% select(address) %>% table() %>% sort(., decreasing = TRUE) %>% head()
+#rep <- nyc_man %>% select(address) %>% table() %>% sort(., decreasing = TRUE) %>% head()
 #ggplot(combined, aes(x=x,y=y,color=factor(precinct))) +
 #  geom_point(size=0.1) +
 #  theme_bw()
