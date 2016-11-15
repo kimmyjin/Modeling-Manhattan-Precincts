@@ -12,12 +12,12 @@ csamp <- function(n,rad=1,centre=c(0,0)){
 #} 
 #plot(Csamp(1000),asp=1) 
 
-samp1<-csamp(2500,0.00678,c(-73.974309,40.770629))
+samp1<-csamp(1500,0.00678,c(-73.974309,40.770629))
 samp2<-csamp(1500,0.00678,c(-73.968815,40.778104))
 samp3<-csamp(1500,0.00678,c(-73.962721,40.785075))
 samp4<-csamp(1500,0.00678,c(-73.959117,40.790858))
 samp5<-csamp(1000,0.00678,c(-73.955855, 40.795244))
 
 sample_together <-data.frame(rbind(samp1,samp2,samp3,samp4,samp5))
-df <- data.frame(address = rep("Central Park",8000),precinct = 22,sample_together)
+df <- data.frame(address = rep("Central Park",7000),precinct = 22,sample_together)
 
