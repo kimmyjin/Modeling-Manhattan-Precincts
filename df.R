@@ -19,4 +19,4 @@ samp4<-Csamp(300,0.0061,c(-73.959117,40.790858))
 samp5<-Csamp(300,0.0062,c(-73.956284,40.795244))
 
 sample_together <-data.frame(rbind(samp1,samp2,samp3,samp4,samp5))
-df <- data.frame(address = rep("Central Park",12000),precinct = 22,sample_together)
+df <- data.frame(address = rep("Central Park",1500),precinct = 22,sample_together)
