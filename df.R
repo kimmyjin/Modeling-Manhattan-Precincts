@@ -1,7 +1,14 @@
-csamp <- function(n=1000,rad=0.00678,centre=c(-73.974309,40.770629)){ 
+#csamp <- function(n,rad,centre=c(0,0)){ 
+#  x0 <- centre[1] ; y0 <- centre[2] 
+#  u <- 2*pi*runif(n) 
+#  cbind(x=rad*cos(u)+x0, y=rad*sin(u)+y0) 
+#} 
+#
+Csamp <- function(n,rad=1,centre=c(0,0)){ 
   x0 <- centre[1] ; y0 <- centre[2] 
   u <- 2*pi*runif(n) 
-  cbind(x=rad*cos(u)+x0, y=rad*sin(u)+y0) 
+  r <- sqrt(runif(n)) 
+  cbind(x=rad*r*cos(u)+x0, y=rad*r*sin(u)+y0) 
 } 
 
 samp1<-csamp(1500,0.00678,c(-73.974309,40.770629))
