@@ -63,8 +63,16 @@ alt.data.dir.rep = c("east", "west","south","north")
 dir.name = data.frame(tolower(alt.data.dir[[1]]),alt.data.dir.rep,stringsAsFactors = FALSE) 
 
 #find the street numbers
-num.rep = c(1:10)
-num = c("1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th")
+num.rep=c(1:100)
+num.add <- function(i){
+  last_digit <- as.numeric(substring(i, nchar(i)))
+  ending <- sapply(last_digit + 1, switch, 'th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th')
+  second_last_digit <- as.numeric(substring(i, nchar(i) - 1, nchar(i) - 1))
+  ending[second_last_digit == 1L] <- 'th'
+  out <- paste(i, ending, sep = '')
+  return(out)
+}
+num=sapply(num.rep,num.add)
 
 # make the address format to be consistant through the nyc_man file
 for (i in seq_len(dim(match.name)[1])){
@@ -73,9 +81,10 @@ for (i in seq_len(dim(match.name)[1])){
 for ( k in seq_along(num.rep)){
   nyc_man$address = str_replace(nyc_man$address, paste0(" ",num[k], " "),paste0(" ",num.rep[k], " "))
 }
+
 for ( j in seq_len(dim(dir.name)[1])){
   nyc_man$address = str_replace(nyc_man$address, paste0(" ",dir.name[j,1], " "),paste0(" ",dir.name[j,2], " "))
-  nyc_man$address = str_replace(nyc_man$address, paste0("^",dir.name[j,1], " "),paste0(" ",dir.name[j,2], " "))
+  nyc_man$address = str_replace(nyc_man$address, paste0("^",dir.name[j,1], " "),paste0(dir.name[j,2], " "))
 }
 # make the address format to be consistant through the pluto_xy file
 pluto_xy$address = str_replace(pluto_xy$address, "bl$", "blvd")
@@ -86,7 +95,7 @@ nyc_man$address = str_replace(nyc_man$address, "bway", "broadway")
 rep <- nyc_man %>% select(address) %>% table() %>% sort(., decreasing = TRUE) %>% head()
 combined = inner_join(nyc_man, pluto_xy)
 
-ggplot(combined, aes(x=x,y=y,color=factor(precinct))) + 
+ggplot(combined, aes(x=x,y=y,color=factor(precinct))) +
   geom_point(size=0.1) +
   theme_bw()
 
@@ -121,5 +130,3 @@ save(combined, file="precinct.Rdata")
 #ggplot(combined, aes(x=x,y=y,color=factor(precinct))) + 
 #  geom_point(size=0.1) +
 #  theme_bw()
-
-save(combined, file="precinct.Rdata")
