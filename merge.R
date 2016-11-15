@@ -100,6 +100,8 @@ Mode = function(x) {
   toString(unique.x[tbl==max(tbl)])
 }
 combined %<>% group_by(x,y) %>% mutate(precinct=as.integer(Mode(precinct))) %>% na.omit() %>% unique()
+
+combined = rbind.data.frame(combined,res_data)
 save(combined, file="precinct.Rdata")
 
 
