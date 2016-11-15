@@ -88,6 +88,8 @@ for ( j in seq_len(dim(dir.name)[1])){
   nyc_man$address = str_replace(nyc_man$address, paste0("^",dir.name[j,1], " "),paste0(dir.name[j,2], " "))
 }
 
+
+
 # make the address format to be consistant through the pluto_xy file
 pluto_xy$address = str_replace(pluto_xy$address, "bl$", "blvd")
 nyc_man$address = str_replace(nyc_man$address, "bway", "broadway")
@@ -124,7 +126,7 @@ save(combined, file="precinct.Rdata")
 
 
 # Combine data
-#rep <- nyc_man %>% select(address) %>% table() %>% sort(., decreasing = TRUE) %>% head()
+rep <- nyc_man %>% select(address) %>% table() %>% sort(., decreasing = TRUE) %>% head()
 #ggplot(combined, aes(x=x,y=y,color=factor(precinct))) +
 #  geom_point(size=0.1) +
 #  theme_bw()
