@@ -36,3 +36,4 @@ samp5<-Csamp(250,0.0062,c(-73.956284,40.795244))
 
 sample_together <-data.frame(rbind(samp1,samp2,samp3,samp4,samp5, neg1, neg2, pos1, pos2))
 df <- data.frame(address = rep("Central Park",1850),precinct = 22,sample_together)
+
