@@ -101,6 +101,7 @@ Mode = function(x) {
 }
 combined %<>% group_by(x,y) %>% mutate(precinct=as.integer(Mode(precinct))) %>% na.omit() %>% unique()
 combined = rbind.data.frame(combined,df)
+#combined = rbind.data.frame(combined,cb)
 combined %<>% ungroup()
 save(combined, file="precinct.Rdata")
 
