@@ -6,7 +6,7 @@ output: html_notebook
 
 ## Setup
 
-```{r message=FALSE}
+```{r message=TRUE}
 library(devtools)
 install_github("edzer/sfr")
 library(raster) # load before dplyr to avoid select bs
@@ -34,7 +34,7 @@ manh = nybb %>% filter(BoroName == "Manhattan")
 
 library(raster)
 ext = st_bbox(manh) %>% .[c("xmin","xmax","ymin","ymax")] %>% extent()
-r = raster(ext, ncol=700, nrow=2100)
+r = raster(ext, ncol=800, nrow=2400)
 r = rasterize(as(manh,"Spatial"),r)
 plot(r)
 ```
@@ -57,7 +57,7 @@ precincts = factor(combined$precinct) %>% levels()
 y = (factor(combined$precinct) %>% as.integer()) - 1L
 x = combined %>% select(x,y) %>% as.matrix()
 
-m = xgboost(data=x, label=y, nthead=4, nround=35, objective="multi:softmax", num_class=length(precincts))
+m = xgboost(data=x, label=y, nthead=4, nround=100, objective="multi:softmax", num_class=length(precincts))
 
 pred_xg = predict(m, newdata=as.matrix(pred_locs))
 pred_xg = precincts[pred_xg+1]

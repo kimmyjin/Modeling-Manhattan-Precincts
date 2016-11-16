@@ -29,12 +29,14 @@ Csamp <- function(n,rad=1,centre=c(0,0)){
 } 
 #plot(Csamp(1000),asp=1) 
 
-samp1<-Csamp(500,0.0065,c(-73.9748436,40.76957945))
-samp2<-Csamp(500,0.0062,c(-73.9701388,40.77604835))
-samp3<-Csamp(500,0.0061,c(-73.9654345,40.78251725))
-samp4<-Csamp(500,0.0061,c(-73.9607292,40.78898615))
-samp5<-Csamp(500,0.0062,c(-73.9560239,40.79545503))
+samp1<-Csamp(200,0.0065,c(-73.9748436,40.76957945))
+samp2<-Csamp(200,0.0062,c(-73.9701388,40.77604835))
+samp3<-Csamp(200,0.0061,c(-73.9654345,40.78251725))
+samp4<-Csamp(200,0.0061,c(-73.9607292,40.78898615))
+samp5<-Csamp(200,0.0062,c(-73.9560239,40.79545503))
 
 sample_together <-data.frame(rbind(samp1,samp2,samp3,samp4,samp5, neg1, neg2, pos1, pos2))
-df <- data.frame(address = rep("Central Park",2000),precinct = 22,sample_together)
+df <- data.frame(address = rep("Central Park",1400),precinct = 22,sample_together)
+
+
 
