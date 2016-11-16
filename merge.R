@@ -79,9 +79,9 @@ for (i in seq_len(dim(match.name)[1])){
   nyc_man$address = str_replace(nyc_man$address, paste0(match.name[i,1],"$"),match.name[i,2])
 }
 
-#for ( k in seq_along(num.rep)){
-#  nyc_man$address = str_replace(nyc_man$address, paste0(" ",num[k], " "),paste0(" ",num.rep[k], " "))
-#}
+for ( k in seq_along(num.rep)){
+  nyc_man$address = str_replace(nyc_man$address, paste0(" ",num[k], " "),paste0(" ",num.rep[k], " "))
+}
 
 for ( j in seq_len(dim(dir.name)[1])){
   nyc_man$address = str_replace(nyc_man$address, paste0(" ",dir.name[j,1], " "),paste0(" ",dir.name[j,2], " "))
