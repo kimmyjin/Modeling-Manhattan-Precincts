@@ -63,31 +63,31 @@ dir.name = data.frame(tolower(alt.data.dir[[1]]),alt.data.dir.rep,stringsAsFacto
 
 
 #find the street numbers
-#num.rep=c(1:10)
-#num.add <- function(i){
-#  last_digit <- as.numeric(substring(i, nchar(i)))
-#  ending <- sapply(last_digit + 1, switch, 'th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th')
-#  second_last_digit <- as.numeric(substring(i, nchar(i) - 1, nchar(i) - 1))
-#  ending[second_last_digit == 1L] <- 'th'
-#  out <- paste(i, ending, sep = '')
-#  return(out)
-#}
-#num=sapply(num.rep,num.add)
+num.rep=c(1:10)
+num.add <- function(i){
+  last_digit <- as.numeric(substring(i, nchar(i)))
+  ending <- sapply(last_digit + 1, switch, 'th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th')
+  second_last_digit <- as.numeric(substring(i, nchar(i) - 1, nchar(i) - 1))
+  ending[second_last_digit == 1L] <- 'th'
+  out <- paste(i, ending, sep = '')
+  return(out)
+}
+num=sapply(num.rep,num.add)
 
 # make the address format to be consistant through the nyc_man file
 for (i in seq_len(dim(match.name)[1])){
   nyc_man$address = str_replace(nyc_man$address, paste0(match.name[i,1],"$"),match.name[i,2])
 }
 
-#for ( k in seq_along(num.rep)){
-#  nyc_man$address = str_replace(nyc_man$address, paste0(" ",num[k], " "),paste0(" ",num.rep[k], " "))
-#}
+for ( k in seq_along(num.rep)){
+  nyc_man$address = str_replace(nyc_man$address, paste0(" ",num[k], " "),paste0(" ",num.rep[k], " "))
+}
 
 for ( j in seq_len(dim(dir.name)[1])){
   nyc_man$address = str_replace(nyc_man$address, paste0(" ",dir.name[j,1], " "),paste0(" ",dir.name[j,2], " "))
   nyc_man$address = str_replace(nyc_man$address, paste0("^",dir.name[j,1], " "),paste0(dir.name[j,2], " "))
 }
-nyc_man$address = gsub(x = nyc_man$address , pattern = " (\\d{0,})\\w{2} ", replace = " \\1 " )
+#nyc_man$address = gsub(x = nyc_man$address , pattern = " (\\d{0,})\\w{2} ", replace = " \\1 " )
 # make the address format to be consistant through the pluto_xy file
 pluto_xy$address = str_replace(pluto_xy$address, "bl$", "blvd")
 nyc_man$address = str_replace(nyc_man$address, "bway", "broadway")
@@ -100,7 +100,13 @@ Mode = function(x) {
   toString(unique.x[tbl==max(tbl)])
 }
 combined %<>% group_by(x,y) %>% mutate(precinct=as.integer(Mode(precinct))) %>% na.omit() %>% unique()
-combined %<>% group_by(precinct) %>% filter(x>quantile(x,prob=0.001)& x<quantile(x,prob=0.999)) %>% filter(y>quantile(y,prob=0.001)& y<quantile(y,prob=0.999))
+
+#combined %<>% group_by(precinct) %>% 
+  filter(x>quantile(x,prob=0.001)& x<quantile(x,prob=0.999)) %>%
+  filter(y>quantile(y,prob=0.001)& y<quantile(y,prob=0.999)) %>% unique()
+
+#combined %<>% group_by(precinct) %>% filter(x>quantile(x,prob=0.001)& x<quantile(x,prob=0.999)) %>% filter(y>quantile(y,prob=0.001)& y<quantile(y,prob=0.999))
+
 combined = rbind.data.frame(combined,df)
 combined %<>% ungroup()
 save(combined, file="precinct.Rdata")

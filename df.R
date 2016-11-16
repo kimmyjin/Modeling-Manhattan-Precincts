@@ -39,3 +39,4 @@ sample_together <-data.frame(rbind(samp1,samp2,samp3,samp4,samp5, neg1, neg2, po
 df <- data.frame(address = rep("Central Park",1400),precinct = 22,sample_together)
 
 
+
