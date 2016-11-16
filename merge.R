@@ -103,8 +103,8 @@ combined %<>% group_by(x,y) %>% mutate(precinct=as.integer(Mode(precinct))) %>% 
 
 combined %<>% group_by(precinct) %>% filter(x>quantile(x,prob=0.001)& x<quantile(x,prob=0.999)) %>% filter(y>quantile(y,prob=0.001)& y<quantile(y,prob=0.999))
 
-combined = rbind.data.frame(combined,df)
-#combined = rbind.data.frame(combined,cb)
+#combined = rbind.data.frame(combined,df)
+combined = rbind.data.frame(combined,cb)
 combined %<>% ungroup()
 save(combined, file="precinct.Rdata")
 
