@@ -101,7 +101,7 @@ Mode = function(x) {
 }
 combined %<>% group_by(x,y) %>% mutate(precinct=as.integer(Mode(precinct))) %>% na.omit() %>% unique()
 
-combined %<>% group_by(precinct) %>% filter(x>quantile(x,prob=0.001)& x<quantile(x,prob=0.999)) %>% filter(y>quantile(y,prob=0.001)& y<quantile(y,prob=0.999))
+#combined %<>% group_by(precinct) %>% filter(x>quantile(x,prob=0.001)& x<quantile(x,prob=0.999)) %>% filter(y>quantile(y,prob=0.001)& y<quantile(y,prob=0.999))
 
 combined = rbind.data.frame(combined,df)
 combined %<>% ungroup()
