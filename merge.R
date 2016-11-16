@@ -118,6 +118,7 @@ samp5<-Csamp(500,0.0062,c(-73.9560239,40.79545503))
 sample_together <-data.frame(rbind(samp1,samp2,samp3,samp4,samp5))
 df <- data.frame(address = rep("Central Park",2000),precinct = 22,sample_together)
 
+combined %<>% group_by(precinct) %>% filter(x>quantile(x,prob=0.001)& x<quantile(x,prob=0.999)) %>% filter(y>quantile(y,prob=0.001)& y<quantile(y,prob=0.999))
 
 combined = rbind.data.frame(combined,df)
 combined %<>% ungroup()
