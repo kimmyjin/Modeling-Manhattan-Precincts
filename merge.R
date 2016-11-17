@@ -206,7 +206,6 @@ r_xg[pred_cells] = as.numeric(pred_xg)
 plot(r_xg)
 
 
-
 ## Polygonize
 library(rgdal)
 source("polygonizer.R")
