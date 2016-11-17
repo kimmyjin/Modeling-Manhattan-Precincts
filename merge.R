@@ -100,23 +100,8 @@ Mode = function(x) {
   toString(unique.x[tbl==max(tbl)])
 }
 combined %<>% group_by(x,y) %>% mutate(precinct=as.integer(Mode(precinct))) %>% na.omit() %>% unique()
-
-#combined %<>% group_by(precinct) %>% 
-  #filter(x>quantile(x,prob=0.001)& x<quantile(x,prob=0.999)) %>%
-  #filter(y>quantile(y,prob=0.001)& y<quantile(y,prob=0.999)) 
-
-#combined %<>% group_by(precinct) %>% filter(x>quantile(x,prob=0.001)& x<quantile(x,prob=0.999)) %>% filter(y>quantile(y,prob=0.001)& y<quantile(y,prob=0.999))
-
-#combined = rbind.data.frame(combined,df)
 combined = rbind.data.frame(combined,cb)
 combined %<>% ungroup()
 save(combined, file="precinct.Rdata")
 
-
-
-# Combine data
-#rep <- nyc_man %>% select(address) %>% table() %>% sort(., decreasing = TRUE) %>% head()
-#ggplot(combined, aes(x=x,y=y,color=factor(precinct))) +
-#  geom_point(size=0.1) +
-#  theme_bw()
 
