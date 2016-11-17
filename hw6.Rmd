@@ -1,0 +1,10 @@
+---
+title: "Modeling Manhattan Precincts"
+output: html_notebook
+---
+
+###Task 1
+
+The basic idea for geocoding was to match the parking violation data (NYParkingViolations.csv) with shapefiles (pluto_manhattan) and obtain each address’s latitude and longitude. Since the  parking violation data was messy, several cleaning steps were done before merging. Firstly, the information we needed (Manhattan’s addresses, geometry, precincts) was selected from their original datasets and all characters were converted into lowercase. There were 3,560,410 observations in parking violation data (nyc_man) and 42,890 observations in shapefiles (pluto_xy). Next, we found the top 10 popular street types with alternative names, and unified them in both datasets. Similarly, the direction words (east/south/west/north) were unified in both datasets. Then, we wrote a function converting cardinal number into ordinal number, and unified the 1-10 street numbers in both datasets as cardinal. The joined data had 920,330 observations. After joining the two datasets, we wrote a function to find the mode of each geographic coordinate’s precinct number(s) (one place may have multiple parking violation records, and some of them were misspelled), set the mode as the correct precinct number (reducing spelling errors), and deleted other duplicated records (improving efficiency). Our final “cleaned” data had 26,869 observations. “dplyr” package and regular expression were mainly used here.
+
+Since Central Park (precinct 22) had no parking violation data, we manually added some points in Central Park and obtain their geographic information: after checking the geometric information of central park, we approximated it as a rectangle and used 20 rectangles (each contained hundreds of points) to cover it. Combining the cleaned data and the “manmade” Central Park data, we had xxx observations of Manhattan precinct data. 
