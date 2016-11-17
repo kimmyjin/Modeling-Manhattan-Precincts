@@ -9,10 +9,11 @@ library(tibble)
 #load the parking violatoin data
 load("/data/nyc_parking/NYParkingViolations.Rdata")
 
+#read the ship-file 
 pluto = st_read("/data/nyc_parking/pluto_manhattan/MNMapPLUTO.shp") %>%
-  select(Address, geometry)
+  select(Address, geometry)    #select Address and geometry 
 
-
+#geting the xy-coordinate of each polygon 
 pluto_xy = cbind(
   select(pluto, Address),
   st_centroid(pluto) %>% 
@@ -24,33 +25,40 @@ pluto_xy = cbind(
 
 
 ## Merge data
+#creating a vector for the precincts in Manhattan 
 valid_precincts = c(1, 5, 6, 7, 9, 10, 13, 14, 17, 18, 19, 20, 22, 23, 24, 25, 26, 28, 30, 32, 33, 34)
 
+#getting the address and precinct of each parking violation in Manhattan
 nyc_man = nyc %>%
   mutate(address = paste(House.Number, Street.Name)) %>%
   filter(Violation.Precinct %in% valid_precincts) %>%
   select(address, precinct = Violation.Precinct)
 
 # Cleanup
-nyc_man %<>% mutate(address = tolower(address)) #change address to lower case letters
-pluto_xy %<>% mutate(address = tolower(address)) #change address to lower case letters
+#change address to lower case letters
+nyc_man %<>% mutate(address = tolower(address)) 
+#change address to lower case letters
+pluto_xy %<>% mutate(address = tolower(address)) 
 
-# Replace strings
-# find the most occurance 10 street type
-alt.data = read.csv(file="/data/nyc_parking/altnames.csv", na.strings=c("","NA"))
-alt.data.stype = alt.data %>% 
+
+
+#reading the altnames file
+altnames = read.csv(file="/data/nyc_parking/altnames.csv", na.strings=c("","NA"))
+# finding 10 street types appearing with high frequency 
+altnames.stype = altnames %>%  
   select(SType) %>% 
   table() %>%
   sort(., decreasing = TRUE) %>% 
   head(.,n = 10) %>% 
   names()
-alt.data.st.rep = c("avenue", "street", "place","way","blvd","road","bridge","drive","court", "parkway")
-match.name = data.frame(tolower(alt.data.stype), alt.data.st.rep, stringsAsFactors = FALSE)
+#creating a vector for these 10 street types with full name
+full.name = c("avenue", "street", "place","way","blvd","road","bridge","drive","court", "parkway")
+street.name = data.frame(tolower(altnames.stype), full.name, stringsAsFactors = FALSE)
 
 # find the directions
-alt.data.dir = alt.data %>% select(PDir) %>% unique() %>% na.omit()
-alt.data.dir.rep = c("east", "west","south","north") 
-dir.name = data.frame(tolower(alt.data.dir[[1]]),alt.data.dir.rep,stringsAsFactors = FALSE) 
+altnames.dir = alt.data %>% select(PDir) %>% unique() %>% na.omit()
+full.dir = c("east", "west","south","north") 
+dir.name = data.frame(tolower(altnames.dir[[1]]),full.dir,stringsAsFactors = FALSE) 
 
 
 #find the street numbers
@@ -66,23 +74,27 @@ num.add <- function(i){
 num=sapply(num.rep,num.add)
 
 # make the address format to be consistant through the nyc_man file
-for (i in seq_len(dim(match.name)[1])){
-  nyc_man$address = str_replace(nyc_man$address, paste0(match.name[i,1],"$"),match.name[i,2])
+#replacing the abbreviated street name to full name
+for (i in seq_len(dim(street.name)[1])){
+  nyc_man$address = str_replace(nyc_man$address, paste0(street.name[i,1],"$"),street.name[i,2])
 }
 
+#replacing the first 10 street number
 for ( k in seq_along(num.rep)){
   nyc_man$address = str_replace(nyc_man$address, paste0(" ",num[k], " "),paste0(" ",num.rep[k], " "))
 }
 
+#replacing the abbreviated street direction to full direction
 for ( j in seq_len(dim(dir.name)[1])){
   nyc_man$address = str_replace(nyc_man$address, paste0(" ",dir.name[j,1], " "),paste0(" ",dir.name[j,2], " "))
   nyc_man$address = str_replace(nyc_man$address, paste0("^",dir.name[j,1], " "),paste0(dir.name[j,2], " "))
 }
-#nyc_man$address = gsub(x = nyc_man$address , pattern = " (\\d{0,})\\w{2} ", replace = " \\1 " )
+
 # make the address format to be consistant through the pluto_xy file
 pluto_xy$address = str_replace(pluto_xy$address, "bl$", "blvd")
 nyc_man$address = str_replace(nyc_man$address, "bway", "broadway")
 
+#inner join the nyc_man and pluto_xy to keep the data appeared on both data set.
 combined = inner_join(nyc_man, pluto_xy)
 
 
@@ -162,8 +174,7 @@ combined = rbind.data.frame(combined,cb)
 save(combined, file="precinct.Rdata")
 
 
-  
-
+#this part is for mdoel prediction
 library(devtools)
 install_github("edzer/sfr")
 library(raster) # load before dplyr to avoid select bs
@@ -180,40 +191,46 @@ library(xgboost)
 load(file="precinct.Rdata")
 ggplot(combined, aes(x=x,y=y,color=factor(precinct))) + geom_point()
 
-
-
 ## Get Manhattan Info
-nybb = st_read("/data/nyc_parking/nybb/", quiet=TRUE)
+nybb = st_read("/data/nyc_parking/nybb/", quiet=TRUE) 
+#getting the boundary of manhattan
 manh = nybb %>% filter(BoroName == "Manhattan")
-#plot(manh,axes=TRUE)
 
 library(raster)
+#use values of xmin, xmax, ymin, ymax to define a rectangular
 ext = st_bbox(manh) %>% .[c("xmin","xmax","ymin","ymax")] %>% extent()
+#partition this rectangulr to 800*2400 small rectangulars
 r = raster(ext, ncol=800, nrow=2400)
+#let everything outside manhattan as NA, everything inside manhattan as 1 
 r = rasterize(as(manh,"Spatial"),r)
-plot(r)
 
 
 ### Get prediction locations
+#getting the none-NA posistions
 pred_cells = which(!is.na(r[]))
+#getting the coordinates of these none-NA positions
 pred_locs = xyFromCell(r, pred_cells) %>% as_data_frame()
 plot(pred_locs, pch=16, cex=0.1)
 
 
-
 ## Model 4 - xgboost
 library(xgboost)
+#keep the track of unique value for outcome variables
 precincts = factor(combined$precinct) %>% levels()
+#labels from 0 to 22
 y = (factor(combined$precinct) %>% as.integer()) - 1L
+#model matrix
 x = combined %>% select(x,y) %>% as.matrix()
 m = xgboost(data=x, label=y, nthead=4, nround=100, objective="multi:softmax", num_class=length(precincts))
 
+#getting the prediction vector
 pred_xg = predict(m, newdata=as.matrix(pred_locs))
 pred_xg = precincts[pred_xg+1]
 ggplot(cbind(pred_locs, pred=pred_xg), aes(x=x,y=y,color=factor(pred))) + geom_point()
 
 
 ## Rasters -> Polygons
+#translate those data to that grid and put them back to the raster
 r_xg = r
 r_xg[pred_cells] = as.numeric(pred_xg)
 plot(r_xg)
@@ -222,6 +239,7 @@ plot(r_xg)
 ## Polygonize
 library(rgdal)
 source("polygonizer.R")
+#creating the shape of each precinct by combinding these small polygon
 p = polygonizer(r_xg)
 p = st_transform(p, 4326)
 plot(p)
