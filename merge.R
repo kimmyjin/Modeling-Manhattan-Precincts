@@ -87,47 +87,63 @@ combined = inner_join(nyc_man, pluto_xy)
 
 
 #creating points for central park
+#obtain four boundary points of central park 
 c1 = c(-73.981419, 40.768517)
 c2 = c(-73.957995, 40.800545)
 c3 = c(-73.973021, 40.764427)
 c4 = c(-73.949281, 40.796896)
 
-
+# generate 50 and 100 c1 and c2's x and y sequence respectively
 x = seq(c1[1],c2[1], length.out = 50)
 y = seq(c1[2],c2[2], length.out = 50)
+# combine 50 sequence of x and y as cbound1 (the points on one side of the length)
 cbound1 = cbind(x, y)
+# combine 100 sequence of x and y as cbound2 (the points on one side of the length)
 x = seq(c1[1],c2[1], length.out = 100)
 y = seq(c1[2],c2[2], length.out = 100)
 cbound2 = cbind(x, y)
 
+# break the width into 20 pieces, th is the increasing value of x and y in each break
 th = (c3-c1)/20
+# creating the theta matrix respect to 50 and 100 rows
 theta1 = matrix(NA, nrow =50, ncol =2)
 theta2 = matrix(NA, nrow =100, ncol =2)
+# paste th values(the increasing of x and y in each piece) in to the matrix of theta1 and theta2
 theta1[,1] = as.numeric(paste(rep(th[1],50)))
 theta1[,2] = as.numeric(paste(rep(th[2],50)))
 theta2[,1] = as.numeric(paste(rep(th[1],100)))
 theta2[,2] = as.numeric(paste(rep(th[2],100)))
 
+#generate cbound as the first with one theta1 increasing(it is the first 50 points we generated in central park)
 cbound = cbound1 + theta1
 
+#continually generate 100 point each iteration with the increasing of theta2 (1600 points inside central park)
 original2 = cbound2
 for (i in 2:17){
   temp = original2 + theta2*i
   cbound = rbind(cbound, temp)
 }
 
+# combine 200 sequence of x and y as cbound3 (200 points on the other side of the length)
 x = seq(c3[1],c4[1], length.out = 200)
 y = seq(c3[2],c4[2], length.out = 200)
 cbound3 = cbind(x, y)
+# creating the theta matrix respect to 200 rows
 theta3 = matrix(NA, nrow = 200, ncol = 2)
+# paste th values(the increasing of x and y in each piece) in to the matrix of theta3
 theta3[,1] = as.numeric(paste(rep(th[1],200)))
 theta3[,2] = as.numeric(paste(rep(th[2],200)))
 
+# generate the second last boundary points by decreasing theta3 as nextbound (200 pointa)
 nextbound = cbound3 + (-theta3)
+
+# combine all points we generated above as cbound
 cbound = rbind(cbound,nextbound, cbound3)
 
-
+# create a dataframe called cb which contains all the fake points we generated in central park 
 cb <-data.frame(address = rep("Central Park",2050),precinct = 22,cbound)
+
+
 Mode = function(x) {
   unique.x = as.integer(unique(x))
   tbl = tabulate(match(x, unique.x))
