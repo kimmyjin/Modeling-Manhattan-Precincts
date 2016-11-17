@@ -6,10 +6,10 @@ library(stringr)
 library(magrittr)
 library(tibble)
 
+#load the parking violatoin data
 load("/data/nyc_parking/NYParkingViolations.Rdata")
-altnames <- read.csv("/data/nyc_parking/altnames.csv")
 
-## Get pluto data
+altnames <- read.csv("/data/nyc_parking/altnames.csv")
 
 pluto = st_read("/data/nyc_parking/pluto_manhattan/MNMapPLUTO.shp") %>%
   select(Address, geometry)
@@ -23,13 +23,8 @@ pluto_xy = cbind(
   setNames(c("address","x","y")) %>%
   tbl_df()
 
-#ggplot(pluto_xy, aes(x=x,y=y)) + 
-#  geom_point(alpha=0.1,size=0.1) +
-#  theme_bw()
-
 
 ## Merge data
-
 valid_precincts = c(1, 5, 6, 7, 9, 10, 13, 14, 17, 18, 19, 20, 22, 23, 24, 25, 26, 28, 30, 32, 33, 34)
 
 nyc_man = nyc %>%
@@ -38,11 +33,8 @@ nyc_man = nyc %>%
   select(address, precinct = Violation.Precinct)
 
 # Cleanup
-
-nyc_man %<>% mutate(address = tolower(address))
-pluto_xy %<>% mutate(address = tolower(address))
-
-
+nyc_man %<>% mutate(address = tolower(address)) #change address to lower case letters
+pluto_xy %<>% mutate(address = tolower(address)) #change address to lower case letters
 
 # Replace strings
 # find the most occurance 10 street type
@@ -99,9 +91,16 @@ Mode = function(x) {
   tbl = tabulate(match(x, unique.x))
   toString(unique.x[tbl==max(tbl)])
 }
-combined %<>% group_by(x,y) %>% mutate(precinct=as.integer(Mode(precinct))) %>% na.omit() %>% unique()
+
+combined %<>% group_by(x,y) %>% 
+  mutate(precinct=as.integer(Mode(precinct))) %>%
+  na.omit() %>% 
+  ungroup() %>%
+  unique()
+
+#adding the points of central park to the combined dataset
 combined = rbind.data.frame(combined,cb)
-combined %<>% ungroup()
+#creating precinct.Rdata file
 save(combined, file="precinct.Rdata")
 
 

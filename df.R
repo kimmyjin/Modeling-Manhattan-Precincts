@@ -1,10 +1,3 @@
-#csamp <- function(n,rad=1,centre=c(0,0)){ 
-#  x0 <- centre[1] ; y0 <- centre[2] 
-#  u <- 2*pi*runif(n) 
-#  cbind(x=rad*cos(u)+x0, y=rad*sin(u)+y0) 
-#} 
-#plot(csamp(100),asp=1) 
-
 lat_neg1 = seq(from = 40.764267, to = 40.7680695, length.out = 100)
 long_neg1 = -2.3275476660038894 * lat_neg1 + 20.907746512209357
 neg1 = cbind(long_neg1, lat_neg1)
