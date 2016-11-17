@@ -12,6 +12,7 @@ load("/data/nyc_parking/NYParkingViolations.Rdata")
 pluto = st_read("/data/nyc_parking/pluto_manhattan/MNMapPLUTO.shp") %>%
   select(Address, geometry)
 
+
 pluto_xy = cbind(
   select(pluto, Address),
   st_centroid(pluto) %>% 
@@ -185,19 +186,15 @@ plot(pred_locs, pch=16, cex=0.1)
 
 
 ## Model 4 - xgboost
-
-
 library(xgboost)
 precincts = factor(combined$precinct) %>% levels()
 y = (factor(combined$precinct) %>% as.integer()) - 1L
 x = combined %>% select(x,y) %>% as.matrix()
-
 m = xgboost(data=x, label=y, nthead=4, nround=100, objective="multi:softmax", num_class=length(precincts))
 
 pred_xg = predict(m, newdata=as.matrix(pred_locs))
 pred_xg = precincts[pred_xg+1]
 ggplot(cbind(pred_locs, pred=pred_xg), aes(x=x,y=y,color=factor(pred))) + geom_point()
-
 
 
 ## Rasters -> Polygons
@@ -212,7 +209,6 @@ source("polygonizer.R")
 p = polygonizer(r_xg)
 p = st_transform(p, 4326)
 plot(p)
-
 st_write(p,"precincts.json", "data", driver="GeoJSON", quiet=TRUE)
 
 
