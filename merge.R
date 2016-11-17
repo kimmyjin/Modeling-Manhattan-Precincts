@@ -9,8 +9,6 @@ library(tibble)
 #load the parking violatoin data
 load("/data/nyc_parking/NYParkingViolations.Rdata")
 
-altnames <- read.csv("/data/nyc_parking/altnames.csv")
-
 pluto = st_read("/data/nyc_parking/pluto_manhattan/MNMapPLUTO.shp") %>%
   select(Address, geometry)
 
