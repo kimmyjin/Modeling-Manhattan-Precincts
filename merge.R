@@ -56,7 +56,7 @@ full.name = c("avenue", "street", "place","way","blvd","road","bridge","drive","
 street.name = data.frame(tolower(altnames.stype), full.name, stringsAsFactors = FALSE)
 
 # find the directions
-altnames.dir = alt.data %>% select(PDir) %>% unique() %>% na.omit()
+altnames.dir = altnames %>% select(PDir) %>% unique() %>% na.omit()
 full.dir = c("east", "west","south","north") 
 dir.name = data.frame(tolower(altnames.dir[[1]]),full.dir,stringsAsFactors = FALSE) 
 
@@ -80,14 +80,14 @@ for (i in seq_len(dim(street.name)[1])){
 }
 
 #replacing the first 10 street number
-for ( k in seq_along(num.rep)){
-  nyc_man$address = str_replace(nyc_man$address, paste0(" ",num[k], " "),paste0(" ",num.rep[k], " "))
+for (j in seq_along(num.rep)){
+  nyc_man$address = str_replace(nyc_man$address, paste0(" ",num[j], " "),paste0(" ",num.rep[j], " "))
 }
 
 #replacing the abbreviated street direction to full direction
-for ( j in seq_len(dim(dir.name)[1])){
-  nyc_man$address = str_replace(nyc_man$address, paste0(" ",dir.name[j,1], " "),paste0(" ",dir.name[j,2], " "))
-  nyc_man$address = str_replace(nyc_man$address, paste0("^",dir.name[j,1], " "),paste0(dir.name[j,2], " "))
+for (k in seq_len(dim(dir.name)[1])){
+  nyc_man$address = str_replace(nyc_man$address, paste0(" ",dir.name[k,1], " "),paste0(" ",dir.name[k,2], " "))
+  nyc_man$address = str_replace(nyc_man$address, paste0("^",dir.name[k,1], " "),paste0(dir.name[k,2], " "))
 }
 
 # make the address format to be consistant through the pluto_xy file
@@ -155,13 +155,16 @@ cbound = rbind(cbound,nextbound, cbound3)
 # create a dataframe called cb which contains all the fake points we generated in central park 
 cb <-data.frame(address = rep("Central Park",2050),precinct = 22,cbound)
 
-
+#This function is used to get the mode of each address corresponding to precinct
 Mode = function(x) {
-  unique.x = as.integer(unique(x))
-  tbl = tabulate(match(x, unique.x))
-  toString(unique.x[tbl==max(tbl)])
+  Unique = as.integer(unique(x))
+  #tabulate takes the integer-valued vector bin and counts the number of times each integer occurs in it
+  Tabulate = tabulate(match(x, Unique))
+  #change numeric type to character type
+  toString(Unique[Tabulate==max(Tabulate)])
 }
 
+#cleaning the repeated data by using the unique function
 combined %<>% group_by(x,y) %>% 
   mutate(precinct=as.integer(Mode(precinct))) %>%
   na.omit() %>% 
