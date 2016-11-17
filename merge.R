@@ -56,19 +56,19 @@ full.name = c("avenue", "street", "place","way","blvd","road","bridge","drive","
 street.name = data.frame(tolower(altnames.stype), full.name, stringsAsFactors = FALSE)
 
 # find the directions
-altnames.dir = alt.data %>% select(PDir) %>% unique() %>% na.omit()
+altnames.dir = altnames %>% select(PDir) %>% unique() %>% na.omit()
 full.dir = c("east", "west","south","north") 
 dir.name = data.frame(tolower(altnames.dir[[1]]),full.dir,stringsAsFactors = FALSE) 
 
 
 #find the street numbers
 num.rep=c(1:10)
-num.add <- function(i){
+num.add <- function(i){                                                                                #convert cardinal number into ordinal
   last_digit <- as.numeric(substring(i, nchar(i)))
-  ending <- sapply(last_digit + 1, switch, 'th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th')
-  second_last_digit <- as.numeric(substring(i, nchar(i) - 1, nchar(i) - 1))
-  ending[second_last_digit == 1L] <- 'th'
-  out <- paste(i, ending, sep = '')
+  ending <- sapply(last_digit + 1, switch, 'th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th') #suffix according to the last digit
+  second_last_digit <- as.numeric(substring(i, nchar(i) - 1, nchar(i) - 1))                            
+  ending[second_last_digit == 1L] <- 'th'                                                              #special case: tens digit=1
+  out <- paste(i, ending, sep = '') 
   return(out)
 }
 num=sapply(num.rep,num.add)
