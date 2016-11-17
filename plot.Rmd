@@ -1,0 +1,90 @@
+## Setup
+
+```{r message=TRUE}
+library(devtools)
+install_github("edzer/sfr")
+library(raster) # load before dplyr to avoid select bs
+
+library(dplyr)
+library(ggplot2)
+library(sf)
+
+# New packages
+library(nnet)
+library(xgboost)
+
+# Load data
+load(file="precinct.Rdata")
+ggplot(combined, aes(x=x,y=y,color=factor(precinct))) + geom_point()
+```
+
+
+## Get Manhattan Info
+
+```{r}
+## Get Manhattan Info
+nybb = st_read("/data/nyc_parking/nybb/", quiet=TRUE) 
+#getting the boundary of manhattan
+manh = nybb %>% filter(BoroName == "Manhattan")
+
+library(raster)
+#use values of xmin, xmax, ymin, ymax to define a rectangular
+ext = st_bbox(manh) %>% .[c("xmin","xmax","ymin","ymax")] %>% extent()
+#partition this rectangulr to 800*2400 small rectangulars
+r = raster(ext, ncol=800, nrow=2400)
+#let everything outside manhattan as NA, everything inside manhattan as 1 
+r = rasterize(as(manh,"Spatial"),r)
+
+```
+
+### Get prediction locations
+
+```{r}
+### Get prediction locations
+#getting the none-NA posistions
+pred_cells = which(!is.na(r[]))
+#getting the coordinates of these none-NA positions
+pred_locs = xyFromCell(r, pred_cells) %>% as_data_frame()
+plot(pred_locs, pch=16, cex=0.1)
+```
+
+## Model 4 - xgboost
+
+```{r}
+## Model 4 - xgboost
+library(xgboost)
+#keep the track of unique value for outcome variables
+precincts = factor(combined$precinct) %>% levels()
+#labels from 0 to 22
+y = (factor(combined$precinct) %>% as.integer()) - 1L
+#model matrix
+x = combined %>% select(x,y) %>% as.matrix()
+m = xgboost(data=x, label=y, nthead=4, nround=100, objective="multi:softmax", num_class=length(precincts))
+
+#getting the prediction vector
+pred_xg = predict(m, newdata=as.matrix(pred_locs))
+pred_xg = precincts[pred_xg+1]
+#ggplot(cbind(pred_locs, pred=pred_xg), aes(x=x,y=y,color=factor(pred))) + geom_point()
+```
+
+
+## Rasters -> Polygons
+```{r}
+## Rasters -> Polygons
+#translate those data to that grid and put them back to the raster
+r_xg = r
+r_xg[pred_cells] = as.numeric(pred_xg)
+plot(r_xg)
+```
+
+
+## Polygonize
+```{r}
+library(rgdal)
+source("polygonizer.R")
+#creating the shape of each precinct by combinding these small polygon
+p = polygonizer(r_xg)
+p = st_transform(p, 4326)
+plot(p)
+st_write(p,"precincts.json", "data", driver="GeoJSON", quiet=TRUE)
+```
