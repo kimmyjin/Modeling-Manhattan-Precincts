@@ -106,8 +106,8 @@ c3 = c(-73.973021, 40.764427)
 c4 = c(-73.949281, 40.796896)
 
 # generate 50 and 100 c1 and c2's x and y sequence respectively
-x = seq(c1[1],c2[1], length.out = 50)
-y = seq(c1[2],c2[2], length.out = 50)
+x = seq(c1[1],c2[1], length.out = 100)
+y = seq(c1[2],c2[2], length.out = 100)
 # combine 50 sequence of x and y as cbound1 (the points on one side of the length)
 cbound1 = cbind(x, y)
 # combine 100 sequence of x and y as cbound2 (the points on one side of the length)
@@ -116,13 +116,13 @@ y = seq(c1[2],c2[2], length.out = 100)
 cbound2 = cbind(x, y)
 
 # break the width into 20 pieces, th is the increasing value of x and y in each break
-th = (c3-c1)/20
+th = (c3-c1)/22
 # creating the theta matrix respect to 50 and 100 rows
-theta1 = matrix(NA, nrow =50, ncol =2)
+theta1 = matrix(NA, nrow =100, ncol =2)
 theta2 = matrix(NA, nrow =100, ncol =2)
 # paste th values(the increasing of x and y in each piece) in to the matrix of theta1 and theta2
-theta1[,1] = as.numeric(paste(rep(th[1],50)))
-theta1[,2] = as.numeric(paste(rep(th[2],50)))
+theta1[,1] = as.numeric(paste(rep(th[1],100)))
+theta1[,2] = as.numeric(paste(rep(th[2],100)))
 theta2[,1] = as.numeric(paste(rep(th[1],100)))
 theta2[,2] = as.numeric(paste(rep(th[2],100)))
 
@@ -137,14 +137,14 @@ for (i in 2:17){
 }
 
 # combine 200 sequence of x and y as cbound3 (200 points on the other side of the length)
-x = seq(c3[1],c4[1], length.out = 200)
-y = seq(c3[2],c4[2], length.out = 200)
+x = seq(c3[1],c4[1], length.out = 250)
+y = seq(c3[2],c4[2], length.out = 250)
 cbound3 = cbind(x, y)
 # creating the theta matrix respect to 200 rows
-theta3 = matrix(NA, nrow = 200, ncol = 2)
+theta3 = matrix(NA, nrow = 250, ncol = 2)
 # paste th values(the increasing of x and y in each piece) in to the matrix of theta3
-theta3[,1] = as.numeric(paste(rep(th[1],200)))
-theta3[,2] = as.numeric(paste(rep(th[2],200)))
+theta3[,1] = as.numeric(paste(rep(th[1],250)))
+theta3[,2] = as.numeric(paste(rep(th[2],250)))
 
 # generate the second last boundary points by decreasing theta3 as nextbound (200 pointa)
 nextbound = cbound3 + (-theta3)
@@ -153,7 +153,7 @@ nextbound = cbound3 + (-theta3)
 cbound = rbind(cbound,nextbound, cbound3)
 
 # create a dataframe called cb which contains all the fake points we generated in central park 
-cb <-data.frame(address = rep("Central Park",2050),precinct = 22,cbound)
+cb <-data.frame(address = rep("Central Park",2200),precinct = 22,cbound)
 
 #This function is used to get the mode of each address corresponding to precinct
 Mode = function(x) {
@@ -175,78 +175,4 @@ combined %<>% group_by(x,y) %>%
 combined = rbind.data.frame(combined,cb)
 #creating precinct.Rdata file
 save(combined, file="precinct.Rdata")
-
-
-#this part is for mdoel prediction
-library(devtools)
-install_github("edzer/sfr")
-library(raster) # load before dplyr to avoid select bs
-
-library(dplyr)
-library(ggplot2)
-library(sf)
-
-# New packages
-library(nnet)
-library(xgboost)
-
-# Load data
-load(file="precinct.Rdata")
-ggplot(combined, aes(x=x,y=y,color=factor(precinct))) + geom_point()
-
-## Get Manhattan Info
-nybb = st_read("/data/nyc_parking/nybb/", quiet=TRUE) 
-#getting the boundary of manhattan
-manh = nybb %>% filter(BoroName == "Manhattan")
-
-library(raster)
-#use values of xmin, xmax, ymin, ymax to define a rectangular
-ext = st_bbox(manh) %>% .[c("xmin","xmax","ymin","ymax")] %>% extent()
-#partition this rectangulr to 800*2400 small rectangulars
-r = raster(ext, ncol=800, nrow=2400)
-#let everything outside manhattan as NA, everything inside manhattan as 1 
-r = rasterize(as(manh,"Spatial"),r)
-
-
-### Get prediction locations
-#getting the none-NA posistions
-pred_cells = which(!is.na(r[]))
-#getting the coordinates of these none-NA positions
-pred_locs = xyFromCell(r, pred_cells) %>% as_data_frame()
-plot(pred_locs, pch=16, cex=0.1)
-
-
-## Model 4 - xgboost
-library(xgboost)
-#keep the track of unique value for outcome variables
-precincts = factor(combined$precinct) %>% levels()
-#labels from 0 to 22
-y = (factor(combined$precinct) %>% as.integer()) - 1L
-#model matrix
-x = combined %>% select(x,y) %>% as.matrix()
-m = xgboost(data=x, label=y, nthead=4, nround=100, objective="multi:softmax", num_class=length(precincts))
-
-#getting the prediction vector
-pred_xg = predict(m, newdata=as.matrix(pred_locs))
-pred_xg = precincts[pred_xg+1]
-ggplot(cbind(pred_locs, pred=pred_xg), aes(x=x,y=y,color=factor(pred))) + geom_point()
-
-
-## Rasters -> Polygons
-#translate those data to that grid and put them back to the raster
-r_xg = r
-r_xg[pred_cells] = as.numeric(pred_xg)
-plot(r_xg)
-
-
-## Polygonize
-library(rgdal)
-source("polygonizer.R")
-#creating the shape of each precinct by combinding these small polygon
-p = polygonizer(r_xg)
-p = st_transform(p, 4326)
-plot(p)
-st_write(p,"precincts.json", "data", driver="GeoJSON", quiet=TRUE)
-
-
 
